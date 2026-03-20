@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arnav Pratap — Video Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --orange:#FF5722;--orange2:#FF7043;
+  --dark:#0d0d0d;--dark2:#141414;--dark3:#1c1c1c;
+  --text:#ffffff;--muted:#999999;
+  --ae:#9999FF;--pr:#EA77FF;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+.cursor{width:10px;height:10px;border-radius:50%;background:var(--orange);position:fixed;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s;}
+.cursor-ring{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,87,34,0.5);position:fixed;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform 0.18s ease,width 0.2s,height 0.2s;}
+@media(max-width:768px){.cursor,.cursor-ring{display:none;}body{cursor:auto;}}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 6%;
+  background:rgba(13,13,13,0.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.nav-logo{
+  font-size:1.5rem;font-weight:900;font-style:italic;
+  text-decoration:none;letter-spacing:1px;
+  display:inline-block;
+}
+.nav-logo .w{color:#ffffff;}
+.nav-logo .o{color:#FF5722;}
+
+.nav-links{display:flex;gap:2.2rem;list-style:none;align-items:center;}
+.nav-links a{
+  text-decoration:none;color:var(--muted);
+  font-size:0.88rem;font-weight:500;
+  position:relative;padding-bottom:4px;transition:color 0.2s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:var(--orange);
+  transform:scaleX(0);transform-origin:left;transition:transform 0.25s;
+}
+.nav-links a:hover,.nav-links a.active{color:var(--text);}
+.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
+.nav-cta{
+  background:var(--orange);color:#fff!important;
+  padding:0.55rem 1.4rem;border-radius:6px;
+  font-weight:600!important;font-size:0.85rem!important;
+}
+.nav-cta::after{display:none!important;}
+.nav-cta:hover{opacity:0.88;}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;}
+.hamburger span{width:22px;height:2px;background:var(--text);display:block;}
+
+/* HERO */
+#home{
+  min-height:100vh;display:flex;align-items:center;
+  padding:6rem 6% 3rem;position:relative;overflow:hidden;
+}
+#home::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,87,34,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,87,34,0.04) 1px,transparent 1px);
+  background-size:55px 55px;animation:gridDrift 25s linear infinite;pointer-events:none;
+}
+@keyframes gridDrift{to{background-position:55px 55px;}}
+.hero-glow{
+  position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,87,34,0.12) 0%,transparent 65%);
+  right:-80px;top:50%;transform:translateY(-50%);pointer-events:none;
+}
+.hero-inner{display:flex;align-items:center;justify-content:space-between;width:100%;gap:3rem;position:relative;z-index:1;}
+.hero-left{flex:1;max-width:580px;}
+
+.avail-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.3);
+  padding:0.4rem 1rem;border-radius:50px;
+  font-size:0.78rem;font-weight:500;color:var(--orange);margin-bottom:1.8rem;
+}
+.avail-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--orange);animation:blink 1.8s ease-in-out infinite;}
+@keyframes blink{50%{opacity:0.2;}}
+
+.hero-name{font-size:clamp(2.8rem,6.5vw,5rem);font-weight:800;line-height:1.05;margin-bottom:0.3rem;}
+.hero-name .and{color:var(--muted);font-weight:600;}
+.hero-name .role-line{color:var(--orange);display:block;}
+
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);font-weight:400;margin-bottom:1.6rem;}
+.typed-text{color:var(--orange);font-weight:600;}
+.cursor-bar{display:inline-block;width:3px;height:1em;background:var(--orange);margin-left:2px;vertical-align:middle;animation:cursorBlink 0.85s step-end infinite;}
+@keyframes cursorBlink{50%{opacity:0;}}
+
+.hero-desc{color:var(--muted);font-size:0.95rem;line-height:1.8;max-width:470px;margin-bottom:2.5rem;}
+
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.btn-primary{background:var(--orange);color:#fff;padding:0.85rem 2.2rem;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.95rem;transition:all 0.22s;border:none;}
+.btn-primary:hover{background:var(--orange2);transform:translateY(-2px);}
+.btn-secondary{background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,0.2);padding:0.85rem 2.2rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:all 0.22s;}
+.btn-secondary:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-2px);}
+
+.scroll-hint{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;animation:scrollBob 2s ease-in-out infinite;}
+.scroll-hint svg{width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;}
+@keyframes scrollBob{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+
+.hero-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:1rem;}
+.profile-wrap{position:relative;width:clamp(260px,32vw,400px);height:clamp(260px,32vw,400px);}
+.ring{position:absolute;border-radius:50%;pointer-events:none;}
+.ring-1{inset:-12px;border:2px solid rgba(255,87,34,0.45);animation:ringRotate 9s linear infinite;}
+.ring-2{inset:-26px;border:1.5px dashed rgba(255,87,34,0.2);animation:ringRotate 16s linear infinite reverse;}
+@keyframes ringRotate{to{transform:rotate(360deg);}}
+.profile-circle{width:100%;height:100%;border-radius:50%;overflow:hidden;border:3px solid rgba(255,87,34,0.5);background:radial-gradient(circle at 38% 34%,#3d1800 0%,#180a00 45%,#0d0d0d 100%);display:flex;align-items:center;justify-content:center;}
+.profile-img{width:100%;height:100%;object-fit:cover;display:block;}
+.profile-initials{font-size:clamp(4rem,10vw,6rem);font-weight:900;color:rgba(255,87,34,0.35);}
+
+.chip{position:absolute;background:var(--dark3);border:1px solid rgba(255,255,255,0.1);padding:0.55rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap;pointer-events:none;}
+.chip-dot{width:8px;height:8px;border-radius:50%;}
+.chip-avail{top:6%;right:-30px;animation:chipFloat 3s ease-in-out infinite;}
+.chip-tool{bottom:10%;left:-40px;animation:chipFloat 3s ease-in-out 1.5s infinite;}
+@keyframes chipFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.editor-tag{background:var(--dark3);border:1px solid rgba(255,255,255,0.1);padding:0.5rem 1.2rem;border-radius:8px;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:8px;color:var(--orange);}
+
+/* MARQUEE */
+.marquee-wrap{background:var(--dark2);overflow:hidden;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding:1rem 0;}
+.marquee-track{display:flex;gap:2.5rem;width:max-content;animation:marqueeRun 22s linear infinite;}
+.marquee-track:hover{animation-play-state:paused;}
+@keyframes marqueeRun{to{transform:translateX(-50%);}}
+.m-item{display:flex;align-items:center;gap:0.9rem;font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--muted);white-space:nowrap;}
+.m-dot{width:5px;height:5px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+/* ABOUT */
+#about{padding:7rem 6%;display:flex;align-items:center;justify-content:center;background:var(--dark);position:relative;}
+#about::before{content:'ABOUT';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(6rem,18vw,14rem);font-weight:900;color:rgba(255,87,34,0.03);pointer-events:none;white-space:nowrap;letter-spacing:10px;}
+.about-card{max-width:760px;width:100%;background:var(--dark2);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:3rem;position:relative;z-index:1;}
+.about-top{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,0.07);}
+.about-avatar{width:70px;height:70px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--orange);background:radial-gradient(circle at 38% 34%,#3d1800 0%,#0d0d0d 100%);display:flex;align-items:center;justify-content:center;}
+.about-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.about-avatar-initials{font-size:1.6rem;font-weight:900;color:rgba(255,87,34,0.5);}
+.about-name h2{font-size:1.3rem;font-weight:700;margin-bottom:0.1rem;}
+.about-name p{font-size:0.85rem;color:var(--orange);font-weight:500;}
+.about-body p{color:var(--muted);font-size:0.95rem;line-height:1.85;margin-bottom:1.1rem;}
+.about-body p:last-child{margin-bottom:0;}
+.about-cta{display:block;margin-top:1.8rem;padding-top:1.8rem;border-top:1px solid rgba(255,255,255,0.07);color:var(--orange);font-size:0.9rem;font-weight:500;font-style:italic;text-decoration:none;transition:opacity 0.2s;}
+.about-cta:hover{opacity:0.75;}
+
+.about-extras{max-width:760px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.5rem;position:relative;z-index:1;}
+.extra-card{background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.4rem;transition:border-color 0.25s,transform 0.25s;}
+.extra-card:hover{border-color:rgba(255,87,34,0.35);transform:translateY(-3px);}
+.extra-card h4{font-size:0.82rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);margin-bottom:0.8rem;}
+.tool-row{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.6rem;}
+.tool-row:last-child{margin-bottom:0;}
+.tool-badge{font-size:0.75rem;padding:0.25rem 0.7rem;border-radius:50px;font-weight:600;}
+.badge-ae{background:rgba(153,153,255,0.12);color:var(--ae);border:1px solid rgba(153,153,255,0.25);}
+.badge-pr{background:rgba(234,119,255,0.12);color:var(--pr);border:1px solid rgba(234,119,255,0.25);}
+.badge-or{background:rgba(255,87,34,0.1);color:var(--orange);border:1px solid rgba(255,87,34,0.25);}
+.tool-name{font-size:0.85rem;color:var(--text);font-weight:500;}
+.tool-desc{font-size:0.78rem;color:var(--muted);}
+.skill-tags{display:flex;flex-wrap:wrap;gap:0.5rem;}
+.skill-tag{background:rgba(255,87,34,0.08);color:var(--orange);border:1px solid rgba(255,87,34,0.2);padding:0.3rem 0.8rem;border-radius:50px;font-size:0.78rem;font-weight:500;}
+
+/* STATS */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);background:var(--dark3);border-top:1px solid rgba(255,255,255,0.06);}
+.stat-cell{padding:2rem 1.5rem;text-align:center;border-right:1px solid rgba(255,255,255,0.06);transition:background 0.2s;}
+.stat-cell:last-child{border-right:none;}
+.stat-cell:hover{background:var(--dark2);}
+.stat-big{font-size:2.4rem;font-weight:900;color:var(--orange);display:block;line-height:1;}
+.stat-lbl{font-size:0.75rem;color:var(--muted);margin-top:0.4rem;text-transform:uppercase;letter-spacing:1px;}
+
+/* FOOTER */
+footer{background:var(--dark2);border-top:1px solid rgba(255,255,255,0.06);padding:2.5rem 6%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;}
+.footer-logo{font-size:1.2rem;font-weight:900;font-style:italic;}
+.footer-logo .w{color:#ffffff;}
+.footer-logo .o{color:#FF5722;}
+.footer-nav{display:flex;gap:2rem;}
+.footer-nav a{color:var(--muted);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+.footer-nav a:hover{color:var(--orange);}
+.socials{display:flex;gap:0.7rem;}
+.soc-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:var(--muted);text-decoration:none;transition:all 0.25s;}
+.soc-btn svg{width:16px;height:16px;fill:currentColor;}
+.soc-btn:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-3px);}
+.footer-copy{color:var(--muted);font-size:0.78rem;width:100%;text-align:center;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.06);}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal.d1{transition-delay:0.1s;}
+.reveal.d2{transition-delay:0.2s;}
+.reveal.d3{transition-delay:0.3s;}
+
+/* HERO ANIMS */
+.a-up{animation:aUp 0.8s ease both;}
+.a-in{animation:aIn 0.9s ease both;}
+.delay-1{animation-delay:0.08s;}
+.delay-2{animation-delay:0.2s;}
+.delay-3{animation-delay:0.32s;}
+.delay-4{animation-delay:0.46s;}
+.delay-5{animation-delay:0.6s;}
+@keyframes aUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+@keyframes aIn{from{opacity:0;}to{opacity:1;}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .hero-inner{flex-direction:column-reverse;text-align:center;}
+  .hero-btns,.scroll-hint{justify-content:center;}
+  .hero-desc{margin:0 auto 2.5rem;}
+  .chip-avail,.chip-tool{display:none;}
+  #about{flex-direction:column;}
+  .about-extras{grid-template-columns:1fr;}
+  .stats-strip{grid-template-columns:1fr 1fr;}
+  .stat-cell:nth-child(2){border-right:none;}
+  .stat-cell:nth-child(3){border-top:1px solid rgba(255,255,255,0.06);}
+}
+@media(max-width:600px){
+  .hamburger{display:flex;}
+  .nav-links{display:none;flex-direction:column;gap:1.5rem;position:absolute;top:100%;left:0;right:0;background:rgba(13,13,13,0.98);padding:2rem 6%;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .nav-links.open{display:flex;}
+  .footer-nav{display:none;}
+  .about-card{padding:2rem 1.5rem;}
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="https://discord.gg/duZu3ErqH3" target="_blank" class="nav-logo">
+    <span class="w">ARN</span><span class="o">AV</span>
+  </a>
+  <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="#home" class="active">Who Am I</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="contact.html" class="nav-cta">Let's Talk →</a></li>
+  </ul>
+</nav>
+
+<section id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="avail-pill a-up delay-1"><div class="dot"></div> Available for Freelance</div>
+      <h1 class="hero-name a-up delay-2">
+        Arnav
+        <span class="role-line"><span class="and">and </span>Video Editor</span>
+      </h1>
+      <p class="hero-sub a-up delay-3">Also a <span class="typed-text" id="typed"></span><span class="cursor-bar"></span></p>
+      <p class="hero-desc a-up delay-3">Bringing stories to life through professional video editing. Specialising in cinematic edits, color grading, motion graphics, and visual effects — using <strong style="color:var(--ae)">After Effects</strong> &amp; <strong style="color:var(--pr)">Premiere Pro</strong>.</p>
+      <div class="hero-btns a-up delay-4">
+        <a href="projects.html" class="btn-primary">View My Work</a>
+        <a href="contact.html" class="btn-secondary">Hire Me</a>
+      </div>
+      <div class="scroll-hint a-up delay-5">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        Scroll Down
+      </div>
+    </div>
+    <div class="hero-right a-in delay-2">
+      <div class="profile-wrap">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="profile-circle">
+          <img src="content.png" alt="Arnav Pratap" class="profile-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <div class="profile-initials" style="display:none">AP</div>
+        </div>
+        <div class="chip chip-avail">
+          <div class="chip-dot" style="background:#4caf50;animation:blink 2s infinite;"></div>Available for work
+        </div>
+        <div class="chip chip-tool">
+          <div class="chip-dot" style="background:var(--ae)"></div>AE + PR
+        </div>
+      </div>
+      <div class="editor-tag a-up delay-4">✦ Video Editor</div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="m-item">After Effects <span class="m-dot"></span></span>
+    <span class="m-item">Premiere Pro <span class="m-dot"></span></span>
+    <span class="m-item">Color Grading <span class="m-dot"></span></span>
+    <span class="m-item">Motion Graphics <span class="m-dot"></span></span>
+    <span class="m-item">Content Creator <span class="m-dot"></span></span>
+    <span class="m-item">YouTube Editing <span class="m-dot"></span></span>
+    <span class="m-item">Reels &amp; Shorts <span class="m-dot"></span></span>
+    <span class="m-item">Thumbnail Design <span class="m-dot"></span></span>
+    <span class="m-item">After Effects <span class="m-dot"></span></span>
+    <span class="m-item">Premiere Pro <span class="m-dot"></span></span>
+    <span class="m-item">Color Grading <span class="m-dot"></span></span>
+    <span class="m-item">Motion Graphics <span class="m-dot"></span></span>
+    <span class="m-item">Content Creator <span class="m-dot"></span></span>
+    <span class="m-item">YouTube Editing <span class="m-dot"></span></span>
+    <span class="m-item">Reels &amp; Shorts <span class="m-dot"></span></span>
+    <span class="m-item">Thumbnail Design <span class="m-dot"></span></span>
+  </div>
+</div>
+
+<section id="about">
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%;gap:0;">
+    <div class="about-card reveal">
+      <div class="about-top">
+        <div class="about-avatar">
+          <img src="content.png" alt="Arnav" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <div class="about-avatar-initials" style="display:none">AP</div>
+        </div>
+        <div class="about-name">
+          <h2>Hello there, I'm Arnav</h2>
+          <p>Video Editor &amp; Content Creator</p>
+        </div>
+      </div>
+      <div class="about-body">
+        <p>I am a professional video editor with a passion for storytelling and visual excellence. With years of experience in the creative industry, I've mastered the art of bringing stories to life through high-end editing.</p>
+        <p>I specialise in creating engaging YouTube videos, cinematic montages, and high-energy content that resonates with audiences. My goal is to help creators and brands tell their stories in the most impactful way possible.</p>
+        <p>Whether it's complex VFX, detailed color grading, or punchy short-form content for social media, I bring a professional touch to every project I work on.</p>
+      </div>
+      <a href="contact.html" class="about-cta">Have a project in mind or need a professional editor to elevate your YouTube content? Let's create something amazing! →</a>
+    </div>
+    <div class="about-extras">
+      <div class="extra-card reveal d1">
+        <h4>Tools I Use</h4>
+        <div class="tool-row"><span class="tool-badge badge-ae">Ae</span><div><div class="tool-name">After Effects</div><div class="tool-desc">Motion graphics, VFX, compositing</div></div></div>
+        <div class="tool-row"><span class="tool-badge badge-pr">Pr</span><div><div class="tool-name">Premiere Pro</div><div class="tool-desc">Editing, color, audio mixing</div></div></div>
+        <div class="tool-row"><span class="tool-badge badge-or">Ps</span><div><div class="tool-name">Photoshop</div><div class="tool-desc">Thumbnails &amp; graphic assets</div></div></div>
+        <div class="tool-row"><span class="tool-badge badge-or">Au</span><div><div class="tool-name">Audition</div><div class="tool-desc">Sound design &amp; cleanup</div></div></div>
+      </div>
+      <div class="extra-card reveal d2">
+        <h4>Skills</h4>
+        <div class="skill-tags">
+          <span class="skill-tag">Video Editing</span>
+          <span class="skill-tag">Color Grading</span>
+          <span class="skill-tag">Motion Graphics</span>
+          <span class="skill-tag">YouTube Content</span>
+          <span class="skill-tag">Reels &amp; Shorts</span>
+          <span class="skill-tag">Thumbnail Design</span>
+          <span class="skill-tag">Sound Design</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SHOWCASE SECTION ══ -->
+<section id="showcase" style="padding:5rem 6%;background:var(--dark2);">
+  <!-- heading -->
+  <div style="text-align:center;margin-bottom:3rem;">
+    <p style="font-size:0.78rem;letter-spacing:4px;text-transform:uppercase;color:var(--orange);margin-bottom:0.6rem;">Portfolio</p>
+    <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.1;">
+      Creative <span style="color:var(--orange);">Showcase</span>
+    </h2>
+    <p style="color:var(--muted);margin-top:0.8rem;font-size:0.95rem;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7;">Explore a selection of edits crafted for creators and brands across YouTube</p>
+  </div>
+
+  <!-- 3x3 grid -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:1100px;margin:0 auto 3rem;">
+
+    <!-- Card 1 -->
+    <div class="sc-card reveal">
+      <div class="sc-thumb">
+        <img src="mc7.jpg" alt="Shree Ram Statue"/>
+        <div class="sc-views">👁 2.8K views</div>
+        <div class="sc-overlay"><div class="sc-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="sc-body">
+        <p class="sc-cat">Minecraft</p>
+        <a href="https://youtu.be/A5hEcHeUexU?si=XoQjzlGa9DbGclMv" target="_blank" class="sc-title">I Made worlds Biggest SHREE RAM STATUE in Minecraft Hardcore</a>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="sc-card reveal d1">
+      <div class="sc-thumb">
+        <img src="mc5.jpg" alt="Ganesh Ji"/>
+        <div class="sc-views">👁 1.6K views</div>
+        <div class="sc-overlay"><div class="sc-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="sc-body">
+        <p class="sc-cat">Minecraft</p>
+        <a href="https://youtu.be/P7cTcj4Z8Kc?si=1uWFIO4UPtVMXHzp" target="_blank" class="sc-title">I Made Biggest GANESH JI in my Hardcore Minecraft</a>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="sc-card reveal d2">
+      <div class="sc-thumb">
+        <img src="mc4.jpg" alt="Goku"/>
+        <div class="sc-views">👁 1.2K views</div>
+        <div class="sc-overlay"><div class="sc-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="sc-body">
+        <p class="sc-cat">Minecraft</p>
+        <a href="https://youtu.be/Mu4w_FCeaVA?si=c7QTixAmNNE0tSzw" target="_blank" class="sc-title">I Made GOKU in Hardcore Minecraft (Hindi)</a>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="sc-card reveal">
+      <div class="sc-thumb">
+        <img src="mc2.jpg" alt="Hanuman Ji"/>
+        <div class="sc-views">👁 1.16K views</div>
+        <div class="sc-overlay"><div class="sc-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="sc-body">
+        <p class="sc-cat">Minecraft</p>
+        <a href="https://youtu.be/Gno8iufA8Qg?si=FGzqHN00f-W0OI1a" target="_blank" class="sc-title">How I made Hanuman ji in this Minecraft SMP</a>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="sc-card reveal d1">
+      <div class="sc-thumb">
+        <img src="mc3.jpg" alt="Blocks"/>
+        <div class="sc-views">👁 1.1K views</div>
+        <div class="sc-overlay"><div class="sc-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="sc-body">
+        <p class="sc-cat">Minecraft</p>
+        <a href="https://youtu.be/vUVupDG3J8M?si=R0E_vifBAHUm0rwt" target="_blank" class="sc-title">I Removed 1,53,64,234 Blocks for This in Minecraft Hardcore</a>
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="sc-card reveal d2">
+      <div class="sc-thumb">
+        <img src="mc9.jpg" alt="Shivling"/>
+        <div class="sc-views">👁 12K views</div>
+        <div class="sc-overlay"><div class="sc-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </div>
+      <div class="sc-body">
+        <p class="sc-cat">Minecraft</p>
+        <a href="https://youtu.be/3AMaesNGrEU?si=Az5hqZEEEKW2hswh" target="_blank" class="sc-title">I Made World's BIGGEST SHIVLING in minecraft Hardcore</a>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+  <div style="text-align:center;">
+    <a href="projects.html" style="display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:#fff;padding:0.9rem 2.5rem;border-radius:8px;font-weight:700;font-size:0.95rem;text-decoration:none;transition:all 0.22s;" onmouseover="this.style.background='var(--orange2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--orange)';this.style.transform='translateY(0)'">
+      View All Work →
+    </a>
+  </div>
+</section>
+
+<style>
+.sc-card { background:var(--dark3); border-radius:12px; overflow:hidden; transition:transform 0.25s,box-shadow 0.25s; }
+.sc-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(255,87,34,0.15); }
+.sc-thumb { position:relative; aspect-ratio:16/9; overflow:hidden; }
+.sc-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.4s; }
+.sc-card:hover .sc-thumb img { transform:scale(1.05); }
+.sc-views { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.75); color:#fff; font-size:0.72rem; font-weight:600; padding:0.3rem 0.7rem; border-radius:50px; backdrop-filter:blur(4px); z-index:2; }
+.sc-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; z-index:3; }
+.sc-card:hover .sc-overlay { opacity:1; }
+.sc-play { width:48px; height:48px; border-radius:50%; background:rgba(255,87,34,0.9); display:flex; align-items:center; justify-content:center; }
+.sc-play svg { width:18px; height:18px; margin-left:3px; }
+.sc-body { padding:1rem 1.2rem; }
+.sc-cat { font-size:0.72rem; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:0.4rem; }
+.sc-title { font-size:0.95rem; font-weight:700; color:var(--text); text-decoration:none; line-height:1.4; display:block; transition:color 0.2s; }
+.sc-title:hover { color:var(--orange); }
+@media(max-width:900px){ #showcase > div:nth-child(2) { grid-template-columns:repeat(2,1fr) !important; } }
+@media(max-width:600px){ #showcase > div:nth-child(2) { grid-template-columns:1fr !important; } }
+</style>
+
+<!-- ══ CLIENT REVIEWS ══ -->
+<section style="padding:5rem 6%;background:var(--dark);">
+  <div style="text-align:center;margin-bottom:3.5rem;">
+    <h2 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;">Client <span style="color:var(--orange);">Reviews</span></h2>
+    <p style="color:var(--muted);margin-top:0.8rem;font-size:0.95rem;">See what creators have to say about working with Arnav</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:0 auto;">
+
+    <div class="rev-card reveal">
+      <div class="rev-name">Niz <span class="rev-tick">✓</span></div>
+      <div class="rev-subs">YouTube Creator</div>
+      <div class="rev-stars">★★★★★</div>
+      <p class="rev-text">"Arnav's editing is genuinely top tier. Clean cuts, smooth transitions and the color grade was insane. My video blew up because of his work — highly recommend!"</p>
+    </div>
+
+    <div class="rev-card reveal d1">
+      <div class="rev-name">Senpai <span class="rev-tick">✓</span></div>
+      <div class="rev-subs">Content Creator</div>
+      <div class="rev-stars">★★★★★</div>
+      <p class="rev-text">"Bro delivered within hours and the quality was fire. The effects were exactly what I wanted. Arnav is one of those editors who actually understands the vibe."</p>
+    </div>
+
+    <div class="rev-card reveal d2">
+      <div class="rev-name">Lozo <span class="rev-tick">✓</span></div>
+      <div class="rev-subs">Content Creator</div>
+      <div class="rev-stars">★★★★★</div>
+      <p class="rev-text">"Super clean editing style and very fast. The motion graphics were on point and the whole video came out better than I imagined. Will definitely work with him again!"</p>
+    </div>
+
+    <div class="rev-card reveal">
+      <div class="rev-name">NG Gaming YT <span class="rev-tick">✓</span></div>
+      <div class="rev-subs">YouTube Gaming Creator</div>
+      <div class="rev-stars">★★★★★</div>
+      <p class="rev-text">"Needed a quick edit for my gaming channel and Arnav absolutely cooked. The pacing, the effects — everything was on point. Fast response time too. Highly recommend!"</p>
+    </div>
+
+    <div class="rev-card reveal d1">
+      <div class="rev-name">Syash <span class="rev-tick">✓</span></div>
+      <div class="rev-subs">Video Editor & Creator</div>
+      <div class="rev-stars">★★★★☆</div>
+      <p class="rev-text">"As a fellow editor I have high standards and Arnav met them. Really clean work, great attention to detail and takes feedback well. Solid editor, would work with again!"</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stat-cell reveal"><span class="stat-big">1+</span><span class="stat-lbl">Year Editing</span></div>
+  <div class="stat-cell reveal d1"><span class="stat-big">50</span><span class="stat-lbl">Videos Edited</span></div>
+  <div class="stat-cell reveal d2"><span class="stat-big">5</span><span class="stat-lbl">Happy Clients</span></div>
+  <div class="stat-cell reveal d3"><span class="stat-big">65K+</span><span class="stat-lbl">Views Generated</span></div>
+</div>
+
+<style>
+.rev-card { background:var(--dark3); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:1.5rem; transition:border-color 0.25s,transform 0.25s; }
+.rev-card:hover { border-color:rgba(255,87,34,0.3); transform:translateY(-3px); }
+.rev-name { font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+.rev-tick { color:var(--orange); font-size:0.8rem; }
+.rev-subs { font-size:0.75rem; color:var(--muted); margin-bottom:5px; }
+.rev-stars { color:#f59e0b; font-size:0.9rem; letter-spacing:2px; margin-bottom:0.8rem; }
+.rev-text { font-size:0.85rem; color:var(--muted); line-height:1.75; font-style:italic; }
+@media(max-width:900px){ section > div { grid-template-columns:repeat(2,1fr) !important; } }
+@media(max-width:600px){ section > div { grid-template-columns:1fr !important; } }
+</style>
+
+<footer style="background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.06);padding:4rem 6% 2rem;">
+  <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:3rem;max-width:1100px;margin:0 auto 3rem;">
+
+    <!-- Brand -->
+    <div>
+      <div style="font-size:1.4rem;font-weight:900;font-style:italic;margin-bottom:1rem;"><span style="color:#ffffff;">ARN</span><span style="color:#FF5722;">AV</span></div>
+      <p style="color:#666;font-size:0.88rem;line-height:1.75;">Bringing stories to life through professional video editing and cinematic content creation.</p>
+    </div>
+
+    <!-- Quick Links -->
+    <div>
+      <h4 style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:1.2rem;letter-spacing:1px;">Quick Links</h4>
+      <div style="display:flex;flex-direction:column;gap:0.7rem;">
+        <a href="index.html#home" style="color:#666;text-decoration:none;font-size:0.85rem;transition:color 0.2s;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">Home</a>
+        <a href="index.html#about" style="color:#666;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">About</a>
+        <a href="projects.html" style="color:#666;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">Projects</a>
+        <a href="contact.html" style="color:#666;text-decoration:none;font-size:0.85rem;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">Contact</a>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <div>
+      <h4 style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:1.2rem;letter-spacing:1px;">Services</h4>
+      <div style="display:flex;flex-direction:column;gap:0.7rem;">
+        <span style="color:#666;font-size:0.85rem;">Video Editing</span>
+        <span style="color:#666;font-size:0.85rem;">Motion Graphics</span>
+        <span style="color:#666;font-size:0.85rem;">Color Grading</span>
+        <span style="color:#666;font-size:0.85rem;">Sound Design</span>
+        <span style="color:#666;font-size:0.85rem;">Thumbnail Design</span>
+      </div>
+    </div>
+
+    <!-- Connect -->
+    <div>
+      <h4 style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:1.2rem;letter-spacing:1px;">Connect</h4>
+      <div style="display:flex;flex-direction:column;gap:0.7rem;">
+        <a href="mailto:arnavpratap770@gmail.com" style="color:#666;text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:8px;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">✉ Email</a>
+        <a href="https://discord.gg/duZu3ErqH3" target="_blank" style="color:#666;text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:8px;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">💬 Discord</a>
+        <a href="contact.html" style="color:#666;text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:8px;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#666'">📋 Hire Me</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div style="max-width:1100px;margin:0 auto;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+    <p style="color:#444;font-size:0.8rem;">© 2026 Arnav Pratap. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+const roles=['Content Creator','Motion Designer','After Effects Artist','YouTube Editor','Thumbnail Artist'];
+let ri=0,ci=0,del=false;
+const el=document.getElementById('typed');
+function type(){
+  const w=roles[ri];
+  el.textContent=del?w.substring(0,ci--):w.substring(0,ci++);
+  if(!del&&ci>w.length){del=true;setTimeout(type,1400);return;}
+  if(del&&ci<0){del=false;ri=(ri+1)%roles.length;ci=0;}
+  setTimeout(type,del?42:72);
+}
+type();
+
+const cursor=document.getElementById('cursor');
+const ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{
+  cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';
+  ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';
+});
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='18px';cursor.style.height='18px';ring.style.width='56px';ring.style.height='56px';});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='10px';cursor.style.height='10px';ring.style.width='36px';ring.style.height='36px';});
+});
+
+const revEls=document.querySelectorAll('.reveal');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:0.12});
+revEls.forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
