@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Work — Arnav Pratap</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ── BASE & PAGE STYLES ── */
+    :root {
+      --dark2: #1c1c1c;
+      --dark3: #2a2a2a;
+      --red: #E63946;
+      --muted: #a0a0a0;
+      --text: #ffffff;
+      --border: rgba(255, 255, 255, 0.05);
+    }
+    
+    body {
+      background-color: #0f0f0f;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+    }
+
+    /* ── CURSOR FIX (Forces it to the very top layer) ── */
+    #cursor, #cursor-ring {
+      position: fixed;
+      pointer-events: none; /* Crucial: lets you click through the cursor */
+      z-index: 9999 !important; /* Forces it above all cards */
+    }
+
+    .page { padding: 8rem 6% 5rem; }
+    .work-header { margin-bottom: 2rem; }
+    
+    /* Typography */
+    a { text-decoration: none; color: inherit; }
+    .eyebrow { color: var(--red); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .section-title { font-family: 'Anton', sans-serif; font-size: 3rem; text-transform: uppercase; line-height: 1; margin-bottom: 2rem; }
+
+    /* ── FILTER BUTTONS ── */
+    .filter-row1 { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.8rem; }
+    .filter-row2 { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem; }
+
+    .ftype-btn, .fcat-btn {
+      cursor:pointer; background:transparent; transition:all 0.2s;
+      font-family:'DM Sans',sans-serif; color:var(--muted);
+    }
+    
+    .ftype-btn {
+      padding:0.5rem 1.3rem; border-radius:50px; font-size:0.82rem; font-weight:600;
+      border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; gap:6px;
+    }
+    .fcat-btn {
+      padding:0.4rem 1rem; border-radius:50px; font-size:0.78rem; font-weight:500;
+      border:1px solid rgba(255,255,255,0.1);
+    }
+
+    .ftype-btn:hover, .fcat-btn:hover { border-color:var(--red); color:var(--text); }
+    .ftype-btn.active, .fcat-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
+
+    /* ── 3x3 GRID ── */
+    .work-grid {
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1200px;
+    }
+    
+    .work-card { 
+      background: var(--dark2); 
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s ease, box-shadow 0.2s ease; 
+      position: relative; 
+      overflow: hidden; 
+      display: flex;
+      flex-direction: column;
+    }
+    .work-card:hover { 
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+    
+    /* ── THUMBNAIL & OVERLAYS ── */
+    .card-thumb {
+      aspect-ratio: 16/9; 
+      position: relative; 
+      overflow: hidden;
+      width: 100%;
+      display: block; /* Important for standardizing the <a> tag layout */
+      cursor: pointer;
+    }
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .card-play-overlay { position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; background:rgba(0,0,0,0.3); }
+    .work-card:hover .card-play-overlay { opacity:1; }
+    .mini-play { width: 50px; height: 50px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(230,57,70,0.4);}
+    .mini-play svg { width: 20px; height: 20px; fill: #fff; margin-left: 3px; }
+
+    /* ── FLOATING VIEW BADGE ── */
+    .view-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+    .view-badge svg { 
+      width: 13px; 
+      height: 13px; 
+      fill: #fff; 
+    }
+
+    /* ── CARD BODY (TEXT) ── */
+    .card-body { 
+      padding: 1.2rem; 
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-cat { 
+      font-size: 0.7rem; 
+      letter-spacing: 1.5px; 
+      text-transform: uppercase; 
+      color: var(--red); 
+      margin: 0 0 0.4rem 0; 
+      font-weight: 600;
+    }
+    
+    .card-title { 
+      font-size: 1.05rem; 
+      font-weight: 700; 
+      color: #fff; 
+      line-height: 1.4;
+      margin: 0;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+    .work-card:hover .card-title {
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) { .work-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .work-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- Custom Cursor Elements -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="https://discord.gg/duZu3ErqH3" target="_blank" class="logo">
+    <span style="color:#ffffff; font-weight: 800; font-size: 1.5rem;">ARN</span><span style="color:#E63946; font-weight: 800; font-size: 1.5rem;">AV</span>
+  </a>
+  <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" style="display:flex; list-style:none; gap:2rem; align-items:center;">
+    <li><a href="index.html#home">Who Am I</a></li>
+    <li><a href="projects.html" class="active">Projects</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+  <div class="work-header">
+    <p class="eyebrow">Portfolio</p>
+    <h1 class="section-title">Selected<br/>Work</h1>
+
+    <!-- Row 1: Type filter -->
+    <div class="filter-row1">
+      <button class="ftype-btn active" onclick="filterType('all',this)">All Types</button>
+      <button class="ftype-btn" onclick="filterType('long',this)">📺 Long Videos</button>
+      <button class="ftype-btn" onclick="filterType('short',this)">⚡ Short Videos</button>
+    </div>
+
+    <!-- Row 2: Category filter -->
+    <div class="filter-row2">
+      <button class="fcat-btn active" onclick="filterCat('all',this)">All</button>
+      <button class="fcat-btn" onclick="filterCat('minecraft',this)">Minecraft</button>
+      <button class="fcat-btn" onclick="filterCat('roblox',this)">Roblox</button>
+      <button class="fcat-btn" onclick="filterCat('reels',this)">Reels / Shorts</button>
+    </div>
+  </div>
+
+  <div class="work-grid" id="work-grid">
+    
+    <!-- MINECRAFT / LONG VIDEOS -->
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/A5hEcHeUexU" target="_blank" class="card-thumb">
+        <img src="mc7.jpg" alt="Shree Ram Statue"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.8K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/A5hEcHeUexU" target="_blank" class="card-title">I Made worlds Biggest SHREE RAM STATUE in Minecraft Hardcore</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/P7cTcj4Z8Kc" target="_blank" class="card-thumb">
+        <img src="mc5.jpg" alt="Ganesh Ji"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.6K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/P7cTcj4Z8Kc" target="_blank" class="card-title">I Made Biggest GANESH JI in my Hardcore Minecraft</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/Mu4w_FCeaVA" target="_blank" class="card-thumb">
+        <img src="mc4.jpg" alt="Goku"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.2K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/Mu4w_FCeaVA" target="_blank" class="card-title">I Made GOKU in Hardcore Minecraft (Hindi)</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/Gno8iufA8Qg" target="_blank" class="card-thumb">
+        <img src="mc2.jpg" alt="Hanuman Ji"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.16K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/Gno8iufA8Qg" target="_blank" class="card-title">How I made Hanuman ji in this Minecraft SMP</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/vUVupDG3J8M" target="_blank" class="card-thumb">
+        <img src="mc3.jpg" alt="Blocks"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.1K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/vUVupDG3J8M" target="_blank" class="card-title">I Removed 1,53,64,234 Blocks for This in Minecraft Hardcore</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/3AMaesNGrEU" target="_blank" class="card-thumb">
+        <img src="mc9.jpg" alt="Shivling"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 12K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/3AMaesNGrEU" target="_blank" class="card-title">I Made World's BIGGEST SHIVLING in minecraft Hardcore</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/f7jWE2ldee8" target="_blank" class="card-thumb">
+        <img src="mc1.jpg" alt="Friends SMP"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 917 views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/f7jWE2ldee8" target="_blank" class="card-title">Why I Save my all friends in this minecraft smp</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/Tnvft2nCkXo" target="_blank" class="card-thumb">
+        <img src="mc6.jpg" alt="India Gate"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.1K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/Tnvft2nCkXo" target="_blank" class="card-title">I made INDIA GATE and 2,34,567 BAMBOO in Hardcore Minecraft</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="long" data-cat="minecraft">
+      <a href="https://youtu.be/T6iqCTvBKvE" target="_blank" class="card-thumb">
+        <img src="mc8.jpg" alt="Mahadev"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.1K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">Minecraft</p>
+        <a href="https://youtu.be/T6iqCTvBKvE" target="_blank" class="card-title">I Made MAHADEV in minecraft Hardcore (Hindi)</a>
+      </div>
+    </div>
+
+    <!-- REELS / SHORT VIDEOS -->
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/EAimA4TFMJ0" target="_blank" class="card-thumb">
+        <img src="thumb1.png" alt="Krrish Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 29K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/EAimA4TFMJ0" target="_blank" class="card-title">Krrish Edit #hrithikroshan</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/yDb40F570vA" target="_blank" class="card-thumb">
+        <img src="thumb2.png" alt="Radha Rani Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 3.5K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/yDb40F570vA" target="_blank" class="card-title">Radha Rani Se Sunder Koi</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/vex8gXXxU0E" target="_blank" class="card-thumb">
+        <img src="thumb3.png" alt="MS Dhoni Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.5K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/vex8gXXxU0E" target="_blank" class="card-title">MS Dhoni The REAL GOD of Cricket</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/pRY8ejIjegY" target="_blank" class="card-thumb">
+        <img src="thumb4.png" alt="Supra Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.7K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/pRY8ejIjegY" target="_blank" class="card-title">Supra Edit</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/OtfN_tmYiQ4" target="_blank" class="card-thumb">
+        <img src="thumb5.png" alt="Navratri Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.69K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/OtfN_tmYiQ4" target="_blank" class="card-title">What Makes a NAVRATRI EDIT GO VIRAL?</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/iIXBtxk67Jc" target="_blank" class="card-thumb">
+        <img src="thumb6.png" alt="Dodge Challenger Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.52K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/iIXBtxk67Jc" target="_blank" class="card-title">Dodge Challenger RTR Edit</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/q5twHDYVW3M" target="_blank" class="card-thumb">
+        <img src="thumb7.png" alt="Rohit Sharma Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.35K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/q5twHDYVW3M" target="_blank" class="card-title">Rohit Sharma Edit . 264 Runs in Odi.</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/Nskio1yk0X0" target="_blank" class="card-thumb">
+        <img src="thumb8.png" alt="Internet Gone Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.28K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/Nskio1yk0X0" target="_blank" class="card-title">What if Internet Gone for a day</a>
+      </div>
+    </div>
+
+    <div class="work-card" data-type="short" data-cat="reels">
+      <a href="https://youtube.com/shorts/B1S5eNvn43g" target="_blank" class="card-thumb">
+        <img src="thumb9.png" alt="Cute Girl Edit"/>
+        <div class="view-badge"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.15K views</div>
+        <div class="card-play-overlay"><div class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+      </a>
+      <div class="card-body">
+        <p class="card-cat">YouTube</p>
+        <a href="https://youtube.com/shorts/B1S5eNvn43g" target="_blank" class="card-title">Cute Girl Edit 🥺🤍</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div style="text-align: center; padding: 2rem 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4rem;">
+    <p style="color: var(--muted); font-size: 0.85rem;">© 2026 Arnav Pratap. All frames reserved.</p>
+  </div>
+</footer>
+
+<script>
+  // Mouse Cursor Script
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  if(cursor){ 
+    document.addEventListener('mousemove', e => { 
+      cursor.style.left = e.clientX + 'px'; 
+      cursor.style.top = e.clientY + 'px'; 
+      ring.style.left = e.clientX + 'px'; 
+      ring.style.top = e.clientY + 'px'; 
+    }); 
+  }
+
+  // Filter Script
+  let activeType = 'all';
+  let activeCat  = 'all';
+
+  function applyFilters() {
+    document.querySelectorAll('#work-grid .work-card').forEach(c => {
+      const type = c.dataset.type;
+      const cat  = c.dataset.cat;
+      const typeOk = activeType === 'all' || type === activeType;
+      const catOk  = activeCat  === 'all' || cat  === activeCat;
+      c.style.display = (typeOk && catOk) ? 'flex' : 'none'; /* Changed to flex to keep layout tight */
+    });
+  }
+
+  function filterType(val, btn) {
+    document.querySelectorAll('.ftype-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeType = val;
+    applyFilters();
+  }
+
+  function filterCat(val, btn) {
+    document.querySelectorAll('.fcat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = val;
+    applyFilters();
+  }
+</script>
+</body>
+</html>
